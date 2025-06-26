@@ -5,6 +5,8 @@ from app.utilities.mongo import get_db
 class Detection:
     db = get_db()
     collection = db["Detection"]
+    
+    
   
 
     def __init__(self, agent_id, vuln_id, detected_at, status="pending", resolved_at=""):
@@ -65,4 +67,13 @@ class Detection:
     
     @classmethod
     def count(cls, query={}):
-        return cls.collection.count_documents(query)
+        return cls.collection.estimated_document_count(query)
+    
+    @classmethod
+    def count_by_status(cls, query={}):
+        pipeline = [
+            {"$match": query},
+            {"$group": {"_id": "$status", "count": {"$sum": 1}}}
+        ]
+        result = cls.collection.aggregate(pipeline)
+        return {doc["_id"]: doc["count"] for doc in result}

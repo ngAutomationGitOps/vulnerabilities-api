@@ -89,7 +89,7 @@ class Vulnerability:
     
     @classmethod
     def count(cls, query={}):
-        return cls.collection.count_documents(query)
+        return cls.collection.estimated_document_count(query)
 
 
     @classmethod

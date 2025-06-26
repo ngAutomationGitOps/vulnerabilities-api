@@ -52,12 +52,21 @@ async def lifespan(app: FastAPI):
     # 🔴 Shutdown logic (optional)
     print("Shutting down app")
 
-def create_app() -> FastAPI:
-    app = FastAPI(lifespan=lifespan)
+def create_app(
+    docs_url=None,
+    redoc_url=None,
+    openapi_url="/openapi.json"
+) -> FastAPI:
+    app = FastAPI(
+        docs_url=docs_url,
+        redoc_url=redoc_url,
+        openapi_url=openapi_url,
+        lifespan=lifespan  
+    )
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[os.getenv("ALLOWED_CLIENT")],
+        allow_origins=[os.getenv("ALLOWED_CLIENT", "*")],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
