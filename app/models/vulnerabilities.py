@@ -113,3 +113,95 @@ class Vulnerability:
         return cls.collection.update_one(query, {"$set": update})
     
     
+    @classmethod
+    def get_all_summaries(cls, query={}, skip=0, limit=100):
+        cursor = cls.collection.find(
+            query,
+            {"_id": 0, "cve_id": 1, "description": 1, "remediation": 1}
+        ).skip(skip).limit(limit)
+        return list(cursor)
+    
+    @classmethod
+    def get_os_grouped_summary(cls, filters: dict):
+        pipeline = []
+
+        match_stage = {}
+        if 'os' in filters:
+            match_stage["host.os_name"] = filters["os"]
+        if 'severity' in filters:
+            match_stage["severity"] = filters["severity"]
+
+        if match_stage:
+            pipeline.append({"$match": match_stage})
+
+        pipeline += [
+            {
+                "$group": {
+                    "_id": {
+                        "os": "$host.os_name",
+                        "severity": "$severity"
+                    },
+                    "count": {"$sum": 1}
+                }
+            },
+            {
+                "$group": {
+                    "_id": "$_id.os",
+                    "severities": {
+                        "$push": {
+                            "severity": "$_id.severity",
+                            "count": "$count"
+                        }
+                    },
+                    "total": {"$sum": "$count"}
+                }
+            },
+            {
+                "$project": {
+                    "_id": 0,
+                    "os": "$_id",
+                    "severities": 1,
+                    "total": 1
+                }
+            },
+            {
+                "$sort": {"os": 1}
+            }
+        ]
+
+        return list(cls.collection.aggregate(pipeline))
+    
+    @classmethod
+    def get_severity_grouped_summary(cls):
+        pipeline = [
+            {
+                "$group": {
+                    "_id": {
+                        "severity": "$severity",
+                        "os": "$host.os_name"
+                    },
+                    "count": {"$sum": 1}
+                }
+            },
+            {
+                "$group": {
+                    "_id": "$_id.severity",
+                    "os_counts": {
+                        "$push": {
+                            "os": "$_id.os",
+                            "count": "$count"
+                        }
+                    },
+                    "total": {"$sum": "$count"}
+                }
+            },
+            {
+                "$project": {
+                    "_id": 0,
+                    "severity": "$_id",
+                    "os_counts": 1,
+                    "total": 1
+                }
+            }
+        ]
+        return list(cls.collection.aggregate(pipeline))

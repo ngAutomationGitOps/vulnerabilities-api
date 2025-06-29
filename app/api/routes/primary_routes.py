@@ -1,8 +1,8 @@
 # app/api/routes.py
-from app.api.handlers.primary_handler import server_check , get_agents , cve_count , vulnerability_count , server_count , get_status_vulnerabilities , get_docs, get_redoc
+from app.api.handlers.primary_handler import server_check , get_agents , cve_count , vulnerability_count , server_count , get_status_vulnerabilities , get_docs, get_redoc , get_all_cves
 
 
-routes = [
+primary_routes = [
      {
         "method": "GET",
         "url": "/docs",
@@ -49,7 +49,14 @@ routes = [
     "method": "GET",
     "url": "/status",
     "handler": get_status_vulnerabilities
+    },
+    
+    {
+    "method": "GET",
+    "url": "/vuln-summary",
+    "handler": get_all_cves
     }
+
 
 
 ]

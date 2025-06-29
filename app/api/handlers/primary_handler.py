@@ -1,6 +1,6 @@
 from app.api.services.primary_services import get_all_agents
 from fastapi import Request
-from app.api.services.primary_services import get_vulnerability_count, get_cve_count, get_server_count , get_status , get_current_username
+from app.api.services.primary_services import get_vulnerability_count, get_cve_count, get_server_count , get_status , get_current_username , get_all_cve_summaries
 from fastapi import Depends
 from fastapi.responses import HTMLResponse
 from fastapi.openapi.docs import get_swagger_ui_html , get_redoc_html
@@ -42,6 +42,12 @@ async def get_status_vulnerabilities(req: Request):
     result = get_status(query_params)
     return result
 
+async def get_all_cves(req: Request):
+    query_params = dict(req.query_params)
+    skip = int(query_params.get("skip", 0))
+    limit = int(query_params.get("limit", 100))
 
+    data = get_all_cve_summaries({}, skip=skip, limit=limit)
+    return {"count": len(data), "data": data}
 
 

@@ -41,3 +41,9 @@ def get_current_username(credentials: HTTPBasicCredentials = Depends(security)) 
             headers={"WWW-Authenticate": "Basic"},
         )
     return credentials.username
+
+
+def get_all_cve_summaries(query={}, skip=0, limit=100):
+    return Vulnerability.get_all_summaries(query, skip, limit)
+
+
