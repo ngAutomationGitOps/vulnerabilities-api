@@ -205,3 +205,5 @@ class Vulnerability:
             }
         ]
         return list(cls.collection.aggregate(pipeline))
+    
+

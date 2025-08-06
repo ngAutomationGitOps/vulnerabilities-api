@@ -2,25 +2,29 @@ from datetime import datetime
 from app.utilities.mongo import get_db
   # assumes your Mongo utils return a collection
 
-class Detection:
+class Combined:
     db = get_db()
-    collection = db["Detection"]
+    collection = db["vuln_enriched"]
     
     
   
 
-    def __init__(self, agent_id, vuln_id, detected_at, status="pending", resolved_at=""):
+    def __init__(self, agent_id, vuln_id, detected_at,  severity , cve_id , host , status="pending", resolved_at="",):
         self.agent_id = agent_id
         self.vuln_id = vuln_id
         self.detected_at = detected_at
         self.status = status
         self.resolved_at = resolved_at
+        self.severity = severity
+        self.cve_id = cve_id
+        self.host = host
+        
 
 
   
     @staticmethod
     def from_excel_row(row):
-        return Detection(
+        return Combined(
             agent_id=row['Agent ID'],
             vuln_id=row['Vuln ID'],
             detected_at=row['Detected At'],
@@ -78,29 +82,11 @@ class Detection:
         result = cls.collection.aggregate(pipeline)
         return {doc["_id"]: doc["count"] for doc in result}
 
+
     @classmethod
     def get_severity_summary_by_owner(cls):
-        # Add int cast just in case
-
-
         pipeline = [
-            { "$match" : { "status" : "pending"}  },
-           # { "$addFields": { "agent_id": { "$toInt": "$agent_id" } } },
-            {
-                "$project": {
-                    "agent_id": 1,
-                    "vuln_id": 1
-                }
-            },
-            {
-                "$lookup": {
-                    "from": "Vulnerabilities",
-                    "localField": "vuln_id",
-                    "foreignField": "_id",
-                    "as": "vuln"
-                }
-            },
-            { "$unwind": "$vuln" },
+            { "$match": { "status": "pending" } },
             {
                 "$lookup": {
                     "from": "agents_temp",
@@ -114,7 +100,7 @@ class Detection:
                 "$group": {
                     "_id": {
                         "owner": "$agent.ServerDetail.Server_owner",
-                        "severity": "$vuln.severity"
+                        "severity": "$severity"
                     },
                     "count": { "$sum": 1 }
                 }
@@ -138,41 +124,20 @@ class Detection:
                     "severities": 1,
                     "total": 1
                 }
-            },
+            }
         ]
-        result = list(cls.collection.aggregate(pipeline , allowDiskUse=True))
+
+        result = list(cls.collection.aggregate(pipeline, allowDiskUse=True))
         print("Final result:", result)
         return result
-  
+    
     @classmethod
     def get_vuln_count_by_severity(cls, severity_level: str):
         pipeline = [
             {
                 "$match": {
-                    "status": "pending"
-                }
-            },
-            {
-                "$lookup": {
-                    "from": "Vulnerabilities",
-                    "let": { "vulnId": "$vuln_id" },
-                    "pipeline": [
-                        {
-                            "$match": {
-                                "$expr": { "$eq": ["$_id", "$$vulnId"] },
-                                "severity": severity_level  # No transformation, exact match
-                            }
-                        },
-                        {
-                            "$project": { "severity": 1 }  # Only fetch what's needed
-                        }
-                    ],
-                    "as": "vuln"
-                }
-            },
-            {
-                "$match": {
-                    "vuln.0": { "$exists": True }  # Only keep docs with matched severity
+                    "status": "pending",
+                    "severity": severity_level
                 }
             },
             {

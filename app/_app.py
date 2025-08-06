@@ -74,5 +74,4 @@ def create_app(
 
     # Register Routes
     register_routes(app)
-
     return app

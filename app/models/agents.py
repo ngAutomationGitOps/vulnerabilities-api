@@ -1,93 +1,66 @@
-from datetime import datetime
-from app.utilities.mongo import get_db
+# app/models/agents.py
 
-class Agent:
-    db = get_db()
-    collection = db["agents"]
-    
-    def __init__(self, _id, name, status, ip_address, os_name, os_platform, os_version, agent_version, group, registration_date):
-        self._id = _id
-        self.name = name
-        self.status = status
-        self.ip_address = ip_address
-        self.os_name = os_name
-        self.os_platform = os_platform
-        self.os_version = os_version
-        self.agent_version = agent_version
-        self.group = group
-        self.registration_date = registration_date
-        self.vulnerabilities = []
+from sqlalchemy import Column, Integer, String, ForeignKey, select, update, delete, func
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import relationship
+from app.utilities.postgresql import Base
 
-    @staticmethod
-    def from_excel_row(row):
-        return Agent(
-            _id=int(row['ID']),
-            name=row['Name'],
-            status=row['Status'],
-            ip_address=row['IP address'],
-            os_name=row['OS name'],
-            os_platform=row['OS platform'],
-            os_version=row['OS version'],
-            agent_version=row['Version'],
-            group=eval(row['Group']),
-            registration_date=datetime.fromisoformat(row['Registration date'].replace('Z', ''))
+class Agent(Base):
+    __tablename__ = "agents"
+
+    id_agent = Column(Integer, primary_key=True, index=True)
+    agent_name = Column(String)
+    ip_address = Column(String)
+    os_name = Column(String)
+    os_platform = Column(String)
+    server_environment = Column(String)
+    os_version = Column(String)
+    id_agent_wazuh = Column(Integer, ForeignKey("agents_wazuh.id_agent_wazuh"))
+    id_department = Column(Integer, ForeignKey("department.id_department"))
+
+    wazuh = relationship("AgentWazuh", back_populates="agent", lazy="joined")
+    department = relationship("Department", back_populates="agents", lazy="joined")
+
+   
+
+    @classmethod
+    async def insert(cls, session: AsyncSession, data: dict):
+        obj = cls(**data)
+        session.add(obj)
+        await session.commit()
+        await session.refresh(obj)
+        return obj
+
+    @classmethod
+    async def insert_many(cls, session: AsyncSession, data_list: list[dict]):
+        objs = [cls(**data) for data in data_list]
+        session.add_all(objs)
+        await session.commit()
+        return objs
+
+    @classmethod
+    async def get_one(cls, session: AsyncSession, agent_id: int):
+        result = await session.execute(select(cls).where(cls.id_agent == agent_id))
+        return result.scalars().first()
+
+    @classmethod
+    async def get_all(cls, session: AsyncSession):
+        result = await session.execute(select(cls))
+        return result.scalars().all()
+
+    @classmethod
+    async def update_one(cls, session: AsyncSession, agent_id: int, update_data: dict):
+        await session.execute(
+            update(cls).where(cls.id_agent == agent_id).values(**update_data)
         )
-
-    def to_dict(self):
-        return {
-            "_id": self._id,
-            "name": self.name,
-            "status": self.status,
-            "ip_address": self.ip_address,
-            "Os": {
-                "name": self.os_name,
-                "platform": self.os_platform,
-                "version": self.os_version
-            },
-            "agent_version": self.agent_version,
-            "group": self.group,
-            "registration_date": self.registration_date,
-            "vulnerabilities": self.vulnerabilities
-        }
-
-
-    
-
-    def insert(self):
-        return self.collection.insert_one(self.to_dict())
+        await session.commit()
 
     @classmethod
-    def insert_many(cls, docs):
-        return cls.collection.insert_many(docs)
-    
-    @classmethod
-    def get_one(cls, query):
-        return cls.collection.find_one(query)
+    async def delete_one(cls, session: AsyncSession, agent_id: int):
+        await session.execute(delete(cls).where(cls.id_agent == agent_id))
+        await session.commit()
 
     @classmethod
-    def get_all(cls, query={}):
-        return list(cls.collection.find(query))
-
-    @classmethod
-    def delete_one(cls, query):
-        return cls.collection.delete_one(query)
-
-    @classmethod
-    def delete_many(cls, query):
-        return cls.collection.delete_many(query)
-    
-    @classmethod
-    def delete_all(cls, confirm=False):
-        if confirm:
-            return cls.collection.delete_many({})
-        else:
-            raise ValueError("Set confirm=True to delete all documents")
-
-    
-    @classmethod
-    def update_one(cls, query, update):
-        return cls.collection.update_one(query, {"$set": update})
-    
-    @classmethod
-    def count(cls, query={}):
-        return cls.collection.estimated_document_count(query)
+    async def count(cls, session: AsyncSession):
+        result = await session.execute(select(func.count(cls.id_agent)))
+        return result.scalar_one()
