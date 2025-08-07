@@ -1,8 +1,9 @@
 from sqlalchemy.future import select
 from app.models.agents import Agent as AgentModel
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession 
 from app.models.fim import Fim
-from sqlalchemy import func
+from sqlalchemy.orm import joinedload
+from sqlalchemy import func 
 
 async def get_all_agents_postgres(session: AsyncSession, query: dict = {}):
     result = await session.execute(select(AgentModel))
@@ -25,15 +26,14 @@ async def get_fim_event_counts_service(db):
     return {event: count for event, count in rows}
 
 async def get_fim_events(session: AsyncSession, query: dict = {}):
-    stmt = select(Fim)
+    stmt = select(Fim).options(joinedload(Fim.agent))
     result = await session.execute(stmt)
     return result.scalars().all()
 
-from sqlalchemy import select, func
 from app.models.fim import Fim
 from app.models.agents import Agent
 from app.models.department import Department
-from sqlalchemy.ext.asyncio import AsyncSession
+
 
 async def get_fim_event_percentages_by_department(session: AsyncSession):
     total_stmt = select(func.count(Fim.id_fim))
@@ -43,6 +43,7 @@ async def get_fim_event_percentages_by_department(session: AsyncSession):
     if total == 0:
         return {}
 
+    # Get count grouped by department name
     stmt = (
         select(Department.department, func.count(Fim.id_fim))
         .join(Agent, Agent.id_department == Department.id_department)
