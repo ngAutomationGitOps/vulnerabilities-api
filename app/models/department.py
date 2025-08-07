@@ -5,8 +5,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import relationship
 from app.utilities.postgresql import Base
 
+
 class Department(Base):
-    __tablename__ = "Department"
+    __tablename__ = "department"
 
     id_department = Column(Integer, primary_key=True, index=True)
     department = Column(String)

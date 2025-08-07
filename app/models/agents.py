@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import relationship
 from app.utilities.postgresql import Base
 
+
 class Agent(Base):
     __tablename__ = "agents"
 
@@ -20,6 +21,8 @@ class Agent(Base):
 
     wazuh = relationship("AgentWazuh", back_populates="agent", lazy="joined")
     department = relationship("Department", back_populates="agents", lazy="joined")
+    fim = relationship("Fim", back_populates="agent", lazy="joined")
+
 
    
 
