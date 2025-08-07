@@ -23,3 +23,8 @@ async def get_fim_event_counts_service(db):
     result = await Fim.get_grouped_event_counts(db)
     rows = result.all()
     return {event: count for event, count in rows}
+
+async def get_fim_events(session: AsyncSession, query: dict = {}):
+    stmt = select(Fim)
+    result = await session.execute(stmt)
+    return result.scalars().all()

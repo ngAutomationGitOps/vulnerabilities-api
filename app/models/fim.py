@@ -12,14 +12,13 @@ class Fim(Base):
     id_fim = Column(Integer, primary_key=True, index=True)
     id_agent = Column(Integer, ForeignKey("agents.id_agent"))
     rule_id = Column(String)
-    severity = Column(String)
     description = Column(String)
     event = Column(String)
     path = Column(String)
     detected_at = Column(DateTime)
     scan_time = Column(DateTime)
 
-    agent = relationship("Agent", back_populates="fim", lazy="joined")
+    agent = relationship("Agent", back_populates="fim", lazy="select")
 
     @classmethod
     async def insert(cls, session: AsyncSession, data: dict):

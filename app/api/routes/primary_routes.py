@@ -1,5 +1,5 @@
 # app/api/routes.py
-from app.api.handlers.primary_handler import get_agents , get_fim_count_handler , get_fim_events_handler
+from app.api.handlers.primary_handler import get_agents , get_fim_count_handler , get_fim_eventsCount_handler, get_fim_events_handler
 
 
 primary_routes = [
@@ -15,6 +15,11 @@ primary_routes = [
     },
     {
        "method" : "GET",
+        "url": "/fim-eventCount",
+        "handler": get_fim_eventsCount_handler
+    },
+    {
+        "method" : "GET",
         "url": "/fim-events",
         "handler": get_fim_events_handler
     }
