@@ -72,8 +72,8 @@ class Fim(Base):
     async def get_fim_events(cls, session: AsyncSession):
         stmt = (
             select(
-                cls.id_fim,
-                cls.event,
+                cls.description,
+                cls.path,
                 cls.detected_at,
                 Agent.agent_name,
                 Department.department,

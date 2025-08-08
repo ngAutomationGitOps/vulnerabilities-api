@@ -29,12 +29,12 @@ async def get_fim_events(session: AsyncSession, query: dict = {}):
     rows = await Fim.get_fim_events(session)
     return [
             {
-                "id_fim": r.id_fim,
-                "event": r.event,
-                "detected_at": r.detected_at,
                 "agent_name": r.agent_name,
                 "department": r.department,
-                "department_name": r.name
+                "server_owner": r.name,
+                "description": r.description,
+                "path": r.path,
+                "detected_at": r.detected_at
             }
             for r in rows
         ]
