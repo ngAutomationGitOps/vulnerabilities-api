@@ -26,9 +26,19 @@ async def get_fim_event_counts_service(db):
     return {event: count for event, count in rows}
 
 async def get_fim_events(session: AsyncSession, query: dict = {}):
-    stmt = select(Fim).options(joinedload(Fim.agent))
-    result = await session.execute(stmt)
-    return result.scalars().all()
+    rows = await Fim.get_fim_events(session)
+    return [
+            {
+                "id_fim": r.id_fim,
+                "event": r.event,
+                "detected_at": r.detected_at,
+                "agent_name": r.agent_name,
+                "department": r.department,
+                "department_name": r.name
+            }
+            for r in rows
+        ]
+    
 
 from app.models.fim import Fim
 from app.models.agents import Agent
@@ -36,23 +46,10 @@ from app.models.department import Department
 
 
 async def get_fim_event_percentages_by_department(session: AsyncSession):
-    total_stmt = select(func.count(Fim.id_fim))
-    total_result = await session.execute(total_stmt)
-    total = total_result.scalar_one()
+    rows , total = await Fim.get_fim_event_percentages(session)
 
     if total == 0:
         return {}
-
-    # Get count grouped by department name
-    stmt = (
-        select(Department.department, func.count(Fim.id_fim))
-        .join(Agent, Agent.id_department == Department.id_department)
-        .join(Fim, Fim.id_agent == Agent.id_agent)
-        .group_by(Department.department)
-    )
-
-    result = await session.execute(stmt)
-    rows = result.all()
 
     return {
         department_name: round((count / total) * 100, 2)

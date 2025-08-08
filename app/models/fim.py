@@ -4,6 +4,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, select, up
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import relationship
 from app.utilities.postgresql import Base
+from app.models import Agent, Department
 
 
 class Fim(Base):
@@ -66,3 +67,38 @@ class Fim(Base):
     async def get_grouped_event_counts(cls, session: AsyncSession):
         stmt = select(cls.event, func.count()).group_by(cls.event)
         return await session.execute(stmt)
+    
+    @classmethod
+    async def get_fim_events(cls, session: AsyncSession):
+        stmt = (
+            select(
+                cls.id_fim,
+                cls.event,
+                cls.detected_at,
+                Agent.agent_name,
+                Department.department,
+                Department.name
+            )
+            .join(Agent, cls.id_agent == Agent.id_agent)
+            .join(Department, Agent.id_department == Department.id_department)
+        )
+
+        result = await session.execute(stmt)
+        return result.all()
+
+        
+    @classmethod
+    async def get_fim_event_percentages(cls, session: AsyncSession):
+        total_stmt = select(func.count(Fim.id_fim))
+        total_result = await session.execute(total_stmt)
+        total = total_result.scalar_one()
+        stmt = (
+        select(Department.department, func.count(Fim.id_fim))
+        .join(Agent, Agent.id_department == Department.id_department)
+        .join(Fim, Fim.id_agent == Agent.id_agent)
+        .group_by(Department.department)
+    )
+
+        result = await session.execute(stmt)
+        return result.all() , total
+    

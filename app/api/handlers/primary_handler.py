@@ -20,13 +20,11 @@ async def get_fim_eventsCount_handler(db: AsyncSession = Depends(get_db)):
     return {"counts": counts}
 
 async def get_fim_events_handler(req: Request, db: AsyncSession = Depends(get_db)):
-    query_params = dict(req.query_params)
-    fim_events = await get_fim_events(db, query_params)
-    return {"data": [fim.__dict__ for fim in fim_events]}
+    fim_events = await get_fim_events(db)
+    return {"data": fim_events}
 
 
-async def get_fim_event_percent_by_department_handler(
-    db: AsyncSession = Depends(get_db)
-):
+
+async def get_fim_event_percent_by_department_handler(db: AsyncSession = Depends(get_db)):
     data = await get_fim_event_percentages_by_department(db)
     return {"percentages": data}
