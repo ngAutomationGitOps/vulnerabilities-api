@@ -18,9 +18,7 @@ SEVERITY_MAP = {
 }
 
 async def get_all_agents_postgres(session: AsyncSession, query: dict = {}):
-    result = await session.execute(select(AgentModel))
-    agents = result.scalars().all()
-    return agents
+    return await Agent.count(session)
 
 
 async def get_fim_count(session: AsyncSession):
@@ -96,3 +94,33 @@ async def get_vuln_by_os(session: AsyncSession):
 
     return data
     
+    
+async def get_vuln_by_department(session: AsyncSession):
+    rows = await Detection.get_vuln_by_dept(session)
+
+    totals = {}
+    for dept, severity, count in rows:
+        totals[dept] = totals.get(dept, 0) + count
+
+    data = {}
+    for dept, severity, count in rows:
+        data.setdefault(dept, {})[severity] = count
+
+    for dept in data:
+        data[dept]["Total"] = totals[dept]
+
+    return data
+
+async def get_cve_ids(session: AsyncSession):
+    rows = await Detection.get_cve_count(session)
+    return [
+        {"cve_id": cve_id, "severity": severity, "count": count}
+        for cve_id, severity, count in rows
+    ]
+
+async def get_vuln_desc(session: AsyncSession):
+    rows = await Vulnerability.vuln_desc(session)
+    return [
+        {"cve_id": cve_id, "Description": description, "Remediation": remediation}
+        for cve_id, description, remediation in rows
+    ]

@@ -96,3 +96,34 @@ class Detection(Base):
     )
         result = await session.execute(stmt)
         return result.all()
+    
+    @classmethod
+    async def get_vuln_by_dept(cls, session: AsyncSession):
+        stmt = (
+            select(
+                Department.name.label("dept"),
+                models.Vulnerability.severity,
+                func.count(Detection.id_detect_vuln).label("count")
+            )
+            .join(Agent, Agent.id_department == Department.id_department)
+            .join(Detection, Detection.id_agent == Agent.id_agent)
+            .join(models.Vulnerability, models.Vulnerability.id_vuln == Detection.id_vuln)
+            .group_by(Department.name, models.Vulnerability.severity)
+        )
+        result = await session.execute(stmt)
+        return result.all()
+    
+    @classmethod
+    async def get_cve_count(cls, session: AsyncSession):
+        stmt = (
+            select(
+                models.Vulnerability.cve_id,
+                models.Vulnerability.severity,
+                func.count(Detection.id_detect_vuln).label("count")
+            )
+            .join(Detection, Detection.id_vuln == models.Vulnerability.id_vuln)
+            .group_by(models.Vulnerability.cve_id, models.Vulnerability.severity)
+            .order_by(func.count(Detection.id_detect_vuln).desc())  # Sorting in SQL
+        )
+        result = await session.execute(stmt)
+        return result.all()

@@ -1,5 +1,5 @@
 # app/api/routes.py
-from app.api.handlers.primary_handler import get_agents , get_fim_count_handler , get_fim_eventsCount_handler, get_fim_events_handler , get_fim_event_percent_by_department_handler, get_vulnerability_count_handler , get_vuln_count_handler, get_vuln_percent_by_department_handler,get_vuln_by_os_handler
+from app.api.handlers.primary_handler import get_agents , get_fim_count_handler , get_fim_eventsCount_handler, get_fim_events_handler , get_fim_event_percent_by_department_handler, get_vulnerability_count_handler , get_vuln_count_handler, get_vuln_percent_by_department_handler,get_vuln_by_os_handler, get_vuln_by_dept_handler , get_cve_ids_handler, get_vuln_desc_handler
 
 
 primary_routes = [
@@ -47,5 +47,21 @@ primary_routes = [
         "method": "GET",
         "url": "/vuln-by-os",
         "handler": get_vuln_by_os_handler
+    },
+    
+    {
+        "method": "GET",
+        "url": "/vuln-by-dept",
+        "handler": get_vuln_by_dept_handler
+    },
+    {
+        "method": "GET",
+        "url": "/cve-ids",
+        "handler": get_cve_ids_handler
+    },
+    {
+        "method": "GET",
+        "url": "/vuln_desc",
+        "handler": get_vuln_desc_handler
     }
 ]

@@ -84,3 +84,14 @@ class Vulnerability(Base):
         return result.scalar_one()
 
 
+    @classmethod
+    async def vuln_desc(cls, session):
+        stmt = (
+            select(Vulnerability.cve_id, Vulnerability.description, Vulnerability.remediation)
+        )
+
+        result = await session.execute(stmt)
+        return result.all()
+    
+
+
