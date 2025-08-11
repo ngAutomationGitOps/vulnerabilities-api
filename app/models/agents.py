@@ -22,6 +22,7 @@ class Agent(Base):
     wazuh = relationship("AgentWazuh", back_populates="agent", lazy="joined")
     department = relationship("Department", back_populates="agents", lazy="joined")
     fim = relationship("Fim", back_populates="agent", lazy="select")
+    detections = relationship("Detection", back_populates="agent", lazy="select")
 
 
    
