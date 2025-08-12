@@ -44,3 +44,28 @@ async def get_event_map(session: AsyncSession):
         { srcCountry : events_count }
         for srcCountry, events_count in rows
     ]
+    
+async def get_impacted_servers(session: AsyncSession):
+    rows = await WazuhEvents.impacted_servers(session)
+    return [
+        {
+            "Hostname" : hostname,
+            "Ip_Address" : ip_address,
+            "Server_Name" : server_name,
+            "status" : status,
+            "owner" : owner,
+            "environment" : environment,
+            "count" : count
+        }
+        for hostname, ip_address, server_name, status, owner, environment, count in rows
+    ]
+    
+async def get_recent_events(session: AsyncSession):
+    rows = await WazuhEvents.recent_events(session)
+    return [
+        {
+            "TimeStamp" : timestamp,
+            "Message" : Message
+        }
+        for timestamp, Message in rows
+    ]

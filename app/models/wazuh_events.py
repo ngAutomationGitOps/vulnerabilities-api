@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey,DateTime, select, upd
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import relationship
 from app.utilities.postgresql import Base
-from app.models import Department , Agent
+from app.models import Department , Agent , AgentWazuh
 
 class WazuhEvents(Base):
     __tablename__ = "wazuh_events"
@@ -156,5 +156,48 @@ class WazuhEvents(Base):
             .where(cls.source_country.isnot(None))
             .group_by(cls.source_country)
         )
+        result = await session.execute(stmt)
+        return result.all()
+
+    @classmethod
+    async def impacted_servers(cls, session: AsyncSession):
+        stmt = (
+            select(
+                Agent.agent_name,
+                Agent.ip_address,
+                AgentWazuh.name,
+                AgentWazuh.status,
+                Department.department,
+                Department.name,
+                func.count(cls.id_event)
+            )
+            .join(Agent, Agent.id_agent == cls.id_agent, isouter=True)
+            .join(Department, Department.id_department == Agent.id_department, isouter=True)
+            .join(AgentWazuh, AgentWazuh.id_agent_wazuh == Agent.id_agent_wazuh)
+            .group_by(
+                Agent.agent_name,
+                Agent.ip_address,
+                AgentWazuh.name,
+                AgentWazuh.status,
+                Department.name,
+                Department.department
+            )
+            .order_by(func.count(WazuhEvents.id_event).desc())
+            .limit(3)
+        )
+        result = await session.execute(stmt)
+        return result.all()
+    
+    @classmethod
+    async def recent_events(cls, session: AsyncSession):
+        stmt = (
+    select(
+        cls.event_time,
+        cls.alert_description,
+    )
+    .group_by(cls.event_time, cls.alert_description)
+    .order_by(cls.event_time.desc())
+    .limit(3)
+)
         result = await session.execute(stmt)
         return result.all()
