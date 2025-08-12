@@ -4,3 +4,6 @@ from .department import Department
 from .fim import Fim
 from. detections import Detection
 from .vulnerabilities import Vulnerability
+from .wazuh_events import WazuhEvents
+from .wazuh_event_rule_group import WazuhEventsRuleGroup
+from .wazuh_event_mitre import WazuhEventsMitre
