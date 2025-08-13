@@ -38,7 +38,7 @@ async def get_event_by_dept(session: AsyncSession):
     result.extend({dept: events_count} for dept, events_count in rows)
     return result
 
-async def get_event_map(session: AsyncSession):
+async def get_events_map(session: AsyncSession):
     rows = await WazuhEvents.events_map(session)
     result = [{"Bangladesh" : 69}]
     result.extend({ srcCountry : events_count }
@@ -69,3 +69,4 @@ async def get_recent_events(session: AsyncSession):
         }
         for timestamp, Message in rows
     ]
+    
