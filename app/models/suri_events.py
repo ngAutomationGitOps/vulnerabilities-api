@@ -166,3 +166,46 @@ class SuriEvents(Base):
 
         result = await session.execute(stmt)
         return result.scalar_one()
+    
+    @classmethod
+    async def alert_rules(cls, session: AsyncSession):
+            stmt = (
+                select(cls.rule_name,
+                       cls.rule_category,
+                       cls.rule_confidence,
+                       cls.rule_reference,
+                       func.count(cls.id_event)\
+                    ).group_by(
+                        cls.rule_name,
+                        cls.rule_category,
+                        cls.rule_confidence,
+                        cls.rule_reference,
+                    )
+                    ).where(cls.rule_name.isnot(None))
+                    
+            result = await session.execute(stmt)
+            return result.all()
+        
+    @classmethod
+    async def ip_info(cls, session: AsyncSession):
+            stmt = (
+                select(cls.source_ip,
+                       cls.source_port,
+                       cls.destination_geo_country_name,
+                       cls.destination_ip,
+                       cls.destination_organization_name,
+                       cls.destination_port,
+                       func.count(cls.id_event)
+                    ).group_by(
+                       cls.source_ip,
+                       cls.source_port,
+                       cls.destination_geo_country_name,
+                       cls.destination_ip,
+                       cls.destination_organization_name,
+                       cls.destination_port
+                    )
+            )
+                    
+            result = await session.execute(stmt)
+            return result.all()
+    

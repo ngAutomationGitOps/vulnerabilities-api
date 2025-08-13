@@ -183,7 +183,7 @@ class WazuhEvents(Base):
                 Department.department
             )
             .order_by(func.count(WazuhEvents.id_event).desc())
-            .limit(3)
+            .limit(10)
         )
         result = await session.execute(stmt)
         return result.all()
@@ -197,7 +197,7 @@ class WazuhEvents(Base):
     )
     .group_by(cls.event_time, cls.alert_description)
     .order_by(cls.event_time.desc())
-    .limit(3)
+    .limit(10)
 )
         result = await session.execute(stmt)
         return result.all()

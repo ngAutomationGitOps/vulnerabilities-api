@@ -1,4 +1,4 @@
-from app.api.handlers.suri_events_handlers import get_suri_events_count_handler,get_so_events_map_handler ,get_so_events_by_rule_tag_handler, get_so_events_by_severity_label_handler, get_unique_ip_handler
+from app.api.handlers.suri_events_handlers import get_suri_events_count_handler,get_so_events_map_handler ,get_so_events_by_rule_tag_handler, get_so_events_by_severity_label_handler, get_unique_ip_handler,get_alert_rules_handler,get_ip_info_handler
 
 suri_events_routes = [
     {
@@ -25,5 +25,15 @@ suri_events_routes = [
         "method" : "GET",
         "url": "/unique-ip",
         "handler": get_unique_ip_handler
+    },
+    {
+        "method" : "GET",
+        "url": "/alert-rules",
+        "handler": get_alert_rules_handler
+    },
+    {
+        "method" : "GET",
+        "url": "/ip-info",
+        "handler": get_ip_info_handler
     }
 ]
