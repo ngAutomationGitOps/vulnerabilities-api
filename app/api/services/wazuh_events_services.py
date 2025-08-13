@@ -40,10 +40,10 @@ async def get_event_by_dept(session: AsyncSession):
 
 async def get_event_map(session: AsyncSession):
     rows = await WazuhEvents.events_map(session)
-    return [
-        { srcCountry : events_count }
-        for srcCountry, events_count in rows
-    ]
+    result = [{"Bangladesh" : 69}]
+    result.extend({ srcCountry : events_count }
+        for srcCountry, events_count in rows)
+    return result
     
 async def get_impacted_servers(session: AsyncSession):
     rows = await WazuhEvents.impacted_servers(session)
