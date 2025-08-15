@@ -37,8 +37,8 @@ async def get_agent_status_by_dept(session: AsyncSession):
 async def get_agent_by_env(session: AsyncSession):
     rows , total = await Agent.agent_by_env(session)
     data = {}
-    for dept, status, count in rows:
-        data.setdefault(dept, {})[status] = count
+    for env,count in rows:
+        data[env] = count
     data["Total"] = total
     return data
 
