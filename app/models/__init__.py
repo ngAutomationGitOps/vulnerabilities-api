@@ -8,3 +8,5 @@ from .wazuh_events import WazuhEvents
 from .wazuh_event_rule_group import WazuhEventsRuleGroup
 from .wazuh_event_mitre import WazuhEventsMitre
 from .suri_events import SuriEvents
+from .agents_so import AgentSo
+from .client import Client

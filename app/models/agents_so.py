@@ -1,4 +1,4 @@
-# app/models/agents_wazuh.py
+
 
 from sqlalchemy import Column, Integer, String, DateTime, select, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,16 +6,16 @@ from sqlalchemy.orm import relationship
 from app.utilities.postgresql import Base
 
 
-class AgentWazuh(Base):
-    __tablename__ = "agents_wazuh"
+class AgentSo(Base):
+    __tablename__ = "agents_so"
 
-    id_agent_wazuh = Column(Integer, primary_key=True, index=True)
+    id_agent_so = Column(Integer, primary_key=True, index=True)
     name = Column(String)
     version = Column(String)
     registration_date = Column(DateTime)
     status = Column(String)
 
-    agent = relationship("Agent", back_populates="wazuh", uselist=False)
+    agent = relationship("Agent", back_populates="so", uselist=False)
 
     @classmethod
     async def insert(cls, session: AsyncSession, data: dict):
@@ -33,7 +33,7 @@ class AgentWazuh(Base):
     @classmethod
     async def count(cls, session: AsyncSession , status: str | None = None):
         if status:
-            result = await session.execute(select(func.count(cls.id_agent_wazuh)).where(cls.status == status))
+            result = await session.execute(select(func.count(cls.id_agent_so)).where(cls.status == status))
         else:
-            result = await session.execute(select(func.count(cls.id_agent_wazuh)))
+            result = await session.execute(select(func.count(cls.id_agent_so)))
         return result.scalar_one()
