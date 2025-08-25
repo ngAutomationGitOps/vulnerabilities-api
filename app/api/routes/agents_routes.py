@@ -14,7 +14,7 @@ agents_routes = [
     },
     {
         "method" : "GET",
-        "url": "/agents-staus-by-dept",
+        "url": "/agents-status-by-dept",
         "handler": get_agent_status_by_dept_handler
     },
     {
