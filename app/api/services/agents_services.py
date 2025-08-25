@@ -42,3 +42,27 @@ async def get_agent_by_env(session: AsyncSession):
     data["Total"] = total
     return data
 
+async def get_agent_by_dept(session: AsyncSession):
+    rows , total = await Agent.agent_by_dept(session)
+    data = {}
+    for dept,count in rows:
+        data[dept] = count
+    data["Total"] = total
+    return data
+
+
+async def get_agent_info(session: AsyncSession):
+    rows = await Agent.agent_info(session)
+    return [
+            {
+                "Server_Environment" : server_environment,
+                "Agent_Name" : agent_name,
+                "Ip_Address" : ip_address,
+                "Server_Owner" : server_owner,
+                "client_name" : client_name,
+                "cs_owner" : cs_owner,
+                "wazuh_status" : wazuh_status
+            }
+            for server_environment,agent_name, ip_address, server_owner, client_name, cs_owner, wazuh_status in rows
+        ]
+

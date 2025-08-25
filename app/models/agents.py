@@ -79,13 +79,14 @@ class Agent(Base):
     async def agent_status_by_dept(cls, session: AsyncSession):
         stmt = (
         select(func.coalesce(
-                    func.nullif(cls.server_environment, ""),  # convert empty string to NULL
+                    func.nullif(models.Department.department, ""),  # convert empty string to NULL
                     literal("Others")
-                ).label("server_environment")
+                ).label("department")
                , models.AgentWazuh.status
                , func.count(Agent.id_agent))
-        .join(models.AgentWazuh, models.AgentWazuh.id_agent_wazuh == cls.id_agent_wazuh)
-        .group_by(cls.server_environment)
+        .join(models.Department, models.Department.id_department == cls.id_department ,  isouter=True)
+        .join(models.AgentWazuh, models.AgentWazuh.id_agent_wazuh == cls.id_agent_wazuh ,  isouter=True)
+        .group_by(models.Department.department)
         .group_by(models.AgentWazuh.status)
     )
 
@@ -108,3 +109,47 @@ class Agent(Base):
 
         result = await session.execute(stmt)
         return result.all() , total
+    
+    @classmethod
+    async def agent_by_dept(cls, session: AsyncSession):
+        total_stmt = select(func.count(cls.id_agent))
+        total_result = await session.execute(total_stmt)
+        total = total_result.scalar_one()
+        stmt = (
+        select(func.coalesce(
+                    func.nullif(models.Department.department, ""),  # convert empty string to NULL
+                    literal("Others")
+                ).label("department")
+               , func.count(Agent.id_agent))
+        .join(models.Department, models.Department.id_department == cls.id_department ,  isouter=True)
+        .group_by(models.Department.department)
+    )
+
+        result = await session.execute(stmt)
+        return result.all() , total
+    
+    @classmethod
+    async def agent_info(cls, session: AsyncSession):
+        stmt = (
+        select(models.Department.department
+               , cls.agent_name 
+               , cls.ip_address
+               , models.Department.name
+               , models.Client.client_name
+               , models.Client.cs_owner
+               , models.AgentWazuh.status)
+        .join(models.Department, models.Department.id_department == cls.id_department ,  isouter=True)
+        .join(models.AgentWazuh, models.AgentWazuh.id_agent_wazuh == cls.id_agent_wazuh ,  isouter=True)
+        .join(models.Client, models.Client.id_client == cls.id_client ,  isouter=True)
+        .group_by( models.Department.department
+                  , cls.agent_name
+                  , cls.ip_address
+                  , models.Department.name
+                  , models.Client.client_name
+                  , models.Client.cs_owner
+                  , models.AgentWazuh.status)
+    )
+        result = await session.execute(stmt)
+        return result.all()
+    
+    
