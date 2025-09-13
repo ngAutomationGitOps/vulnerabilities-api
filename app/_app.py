@@ -65,12 +65,13 @@ def create_app(
     )
 
     app.add_middleware(
-        CORSMiddleware,
-        allow_origins=[os.getenv("ALLOWED_CLIENT", "*")],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+    CORSMiddleware,
+    allow_origins=os.getenv("ALLOWED_CLIENT", "*").split(","),
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
     # Register Routes
     register_routes(app)
