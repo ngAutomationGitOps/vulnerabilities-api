@@ -43,6 +43,11 @@ async def get_fim_events(session: AsyncSession, query: dict = {}):
                 "department": r.department,
                 "server_owner": r.name,
                 "description": r.description,
+                "event": r.event,
+                "rule_id": r.rule_id,
+                "category": r.category,
+                "severity": r.severity,
+                "environment": r.server_environment,
                 "path": r.path,
                 "detected_at": r.detected_at
             }

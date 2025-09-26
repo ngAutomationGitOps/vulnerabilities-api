@@ -13,10 +13,13 @@ class Fim(Base):
     id_fim = Column(Integer, primary_key=True, index=True)
     id_agent = Column(Integer, ForeignKey("agents.id_agent"))
     rule_id = Column(String)
+    level = Column(String)
     description = Column(String)
     event = Column(String)
     path = Column(String)
     detected_at = Column(DateTime)
+    category = Column(String)
+    severity = Column(String)
     scan_time = Column(DateTime)
 
     agent = relationship("Agent", back_populates="fim", lazy="select")
@@ -75,7 +78,12 @@ class Fim(Base):
                 cls.description,
                 cls.path,
                 cls.detected_at,
+                cls.event,
+                cls.rule_id,
+                cls.category,
+                cls.severity,
                 Agent.agent_name,
+                Agent.server_environment,
                 Department.department,
                 Department.name
             )
