@@ -87,7 +87,7 @@ class ASMVulnerabilities(Base):
             select(
                 cls.severity, 
                 func.count(cls.id_asm_vulnerabilities))
-            .where(cls.severity != "critical")
+            .where(cls.severity != "info")
             .group_by(cls.severity)
         )
         return result.all()
@@ -112,7 +112,7 @@ class ASMVulnerabilities(Base):
                 models.ASMDomains,
                 models.ASMDomains.id_asm_domain == cls.id_asm_domain
             )
-            .where(or_(cls.severity == "info", cls.severity == "high"))
+            .where(or_(cls.severity == "critical", cls.severity == "high"))
             .order_by(severity_order, models.ASMDomains.domain_name)
         )
 
