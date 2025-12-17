@@ -10,3 +10,8 @@ from .wazuh_event_mitre import WazuhEventsMitre
 from .suri_events import SuriEvents
 from .agents_so import AgentSo
 from .client import Client
+from .asm_domain import ASMDomains
+from .asm_open_ports import ASMOpenPorts
+from .asm_ssl_info import ASMSslInfo
+from .asm_technologies import ASMTechnologies
+from .asm_vulnerabilities import ASMVulnerabilities
