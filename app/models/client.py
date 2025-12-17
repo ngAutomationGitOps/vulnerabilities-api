@@ -1,19 +1,19 @@
-# app/models/department.py
 
-from sqlalchemy import Column, Integer, String, select, func
+
+from sqlalchemy import Column, Integer, String, DateTime, select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import relationship
 from app.utilities.postgresql import Base
 
 
-class Department(Base):
-    __tablename__ = "department"
+class Client(Base):
+    __tablename__ = "client"
 
-    id_department = Column(Integer, primary_key=True, index=True)
-    department = Column(String)
-    name = Column(String)
+    id_client = Column(Integer, primary_key=True, index=True)
+    client_name = Column(String)
+    cs_owner = Column(String)
 
-    agents = relationship("Agent", back_populates="department")
+    agent = relationship("Agent", back_populates="client", uselist=False)
 
     @classmethod
     async def insert(cls, session: AsyncSession, data: dict):
@@ -30,5 +30,5 @@ class Department(Base):
 
     @classmethod
     async def count(cls, session: AsyncSession):
-        result = await session.execute(select(func.count(cls.id_department)))
+        result = await session.execute(select(func.count(cls.id_client)))
         return result.scalar_one()
