@@ -55,14 +55,17 @@ async def get_agent_info(session: AsyncSession):
     rows = await Agent.agent_info(session)
     return [
             {
+                "Agent ID" : agent_id,
                 "Server_Environment" : server_environment,
                 "Agent_Name" : agent_name,
                 "Ip_Address" : ip_address,
                 "Server_Owner" : server_owner,
                 "client_name" : client_name,
                 "cs_owner" : cs_owner,
-                "wazuh_status" : wazuh_status
+                "wazuh_status" : wazuh_status,
+                "end_of_life" : end_of_life,
+                "extended_support_end_date": extended_support_end_date
             }
-            for server_environment,agent_name, ip_address, server_owner, client_name, cs_owner, wazuh_status in rows
+            for server_environment, agent_id ,agent_name, ip_address, end_of_life, extended_support_end_date, server_owner, client_name, cs_owner, wazuh_status in rows
         ]
 
