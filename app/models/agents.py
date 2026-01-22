@@ -1,6 +1,6 @@
 # app/models/agents.py
 
-from sqlalchemy import Column, Integer, String, ForeignKey, select, update, delete, func , literal
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, select, update, delete, func , literal
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import relationship
 from app.utilities.postgresql import Base
@@ -18,6 +18,8 @@ class Agent(Base):
     os_platform = Column(String)
     server_environment = Column(String)
     os_version = Column(String)
+    end_of_life = Column(DateTime)
+    extended_support_end_date = Column(DateTime)
     id_agent_wazuh = Column(Integer, ForeignKey("agents_wazuh.id_agent_wazuh"))
     id_department = Column(Integer, ForeignKey("department.id_department"))
     id_agent_so = Column(Integer, ForeignKey("agents_so.id_agent_so"))
@@ -132,8 +134,11 @@ class Agent(Base):
     async def agent_info(cls, session: AsyncSession):
         stmt = (
         select(models.Department.department
+               , cls.id_agent
                , cls.agent_name 
                , cls.ip_address
+               , cls.end_of_life
+               , cls.extended_support_end_date
                , models.Department.name
                , models.Client.client_name
                , models.Client.cs_owner
@@ -142,8 +147,11 @@ class Agent(Base):
         .join(models.AgentWazuh, models.AgentWazuh.id_agent_wazuh == cls.id_agent_wazuh ,  isouter=True)
         .join(models.Client, models.Client.id_client == cls.id_client ,  isouter=True)
         .group_by( models.Department.department
+                  , cls.id_agent
                   , cls.agent_name
                   , cls.ip_address
+                  , cls.end_of_life
+                  , cls.extended_support_end_date
                   , models.Department.name
                   , models.Client.client_name
                   , models.Client.cs_owner
@@ -152,4 +160,4 @@ class Agent(Base):
         result = await session.execute(stmt)
         return result.all()
     
-    
+
