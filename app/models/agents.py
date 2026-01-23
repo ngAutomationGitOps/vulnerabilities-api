@@ -139,6 +139,7 @@ class Agent(Base):
                , cls.ip_address
                , cls.end_of_life
                , cls.extended_support_end_date
+               , cls.os_name
                , models.Department.name
                , models.Client.client_name
                , models.Client.cs_owner
@@ -152,6 +153,7 @@ class Agent(Base):
                   , cls.ip_address
                   , cls.end_of_life
                   , cls.extended_support_end_date
+                  , cls.os_name
                   , models.Department.name
                   , models.Client.client_name
                   , models.Client.cs_owner
